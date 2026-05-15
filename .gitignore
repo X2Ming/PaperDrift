@@ -1,0 +1,19 @@
+# Processing and Java build output
+build/
+out/
+*.class
+*.jar
+*.tmp
+
+# Local Processing CLI output from this workspace
+.processing-build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Optional large local media exports
+*.mp4
+*.mov
+*.avi
+
