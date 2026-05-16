@@ -1,35 +1,35 @@
-// UI 和所有视觉绘制函数。
-// 这个文件比较长，因为我尽量不用图片，而是用 Processing 图形函数画纸质界面。
+// UI 和所有视觉绘制函数
+// 这个文件比较长因为我尽量不用图片而是用 Processing 图形函数画纸质界面
 
 boolean darkPaperMode() {
-  // darkBlend 大于一点点时，就开始把 UI 当成暗黑模式来画。
+  // darkBlend 大于一点点时就开始把 UI 当成暗黑模式来画
   return darkBlend > 0.12;
 }
 
 float darkAmount() {
-  // 限制在 0~1，方便后面做颜色渐变。
+  // 限制在 01方便后面做颜色渐变
   return constrain(darkBlend, 0, 1);
 }
 
 int uiInkColor() {
-  // 普通阶段是深灰墨水，暗黑阶段变成浅米色墨水。
+  // 普通阶段是深灰墨水暗黑阶段变成浅米色墨水
   return lerpColor(COL_TEXT, 0xFFEDE1C8, darkAmount());
 }
 
 void fillUiInk(float alphaValue) {
-  // 封装一下 fill，这样暗黑模式不用到处改颜色。
+  // 封装一下 fill这样暗黑模式不用到处改颜色
   int c = uiInkColor();
   fill(red(c), green(c), blue(c), alphaValue);
 }
 
 void strokeUiInk(float alphaValue) {
-  // 和 fillUiInk 类似，用于线条颜色。
+  // 和 fillUiInk 类似用于线条颜色
   int c = uiInkColor();
   stroke(red(c), green(c), blue(c), alphaValue);
 }
 
 void drawSoftShadow(float x, float y, float w, float h, float r) {
-  // 纸卡阴影：普通阶段轻，暗黑阶段更重。
+  // 纸卡阴影普通阶段轻暗黑阶段更重
   noStroke();
   float d = darkAmount();
   fill(72, 52, 28, 10 * (1 - d));
@@ -44,7 +44,7 @@ void drawSoftShadow(float x, float y, float w, float h, float r) {
 }
 
 void drawPaperCard(float x, float y, float w, float h, float r) {
-  // 所有 UI 卡片都用这个函数，保持风格统一。
+  // 所有 UI 卡片都用这个函数保持风格统一
   drawSoftShadow(x, y, w, h, r);
   float d = darkAmount();
 
@@ -59,7 +59,7 @@ void drawPaperCard(float x, float y, float w, float h, float r) {
 }
 
 void drawHUD() {
-  // 左上角 HUD 纸卡，显示标题、分数、生命和提示。
+  // 左上角 HUD 纸卡显示标题分数生命和提示
   float m = max(24, min(width, height) * 0.035);
   float w = 254;
   float h = 128;
@@ -95,7 +95,7 @@ void drawHUD() {
 }
 
 void drawLifeDots(float x, float y) {
-  // 生命值用三个小纸点表示，比普通游戏血条更符合参考图。
+  // 生命值用三个小纸点表示比普通游戏血条更符合参考图
   for (int i = 0; i < 3; i++) {
     float dx = x + i * 24;
     noStroke();
@@ -129,7 +129,7 @@ void drawLifeDots(float x, float y) {
 }
 
 void drawInstructionCard() {
-  // 右下角操作提示卡，文字在暗黑阶段会换成更紧张的版本。
+  // 右下角操作提示卡文字在暗黑阶段会换成更紧张的版本
   float w = min(460, width * 0.46);
   float h = 74;
   float x = width - w - max(28, width * 0.035);
@@ -167,7 +167,7 @@ void drawInstructionCard() {
 }
 
 void drawStartScreen() {
-  // 开始界面：中心偏左的纸卡，参考图里的第一张 UI。
+  // 开始界面中心偏左的纸卡参考图里的第一张 UI
   drawPosterScraps();
 
   float cardW = min(455, width * 0.44);
@@ -211,7 +211,7 @@ void drawStartScreen() {
 }
 
 void drawGameOverScreen() {
-  // 游戏结束界面：居中的纸卡，显示最终分数。
+  // 游戏结束界面居中的纸卡显示最终分数
   drawPosterScraps();
 
   float cardW = min(435, width * 0.58);
@@ -259,8 +259,105 @@ void drawGameOverScreen() {
   text("Move mouse to restart", x + cardW / 2, y + cardH * 0.83);
 }
 
+void drawStoryScreen() {
+  // 通关后的故事界面文字会先填满横线再按句子掉下去
+  drawPaperBackground();
+
+  for (PaperScrap scrap : scraps) {
+    scrap.display();
+  }
+
+  float left = storyTextLeft();
+  float top = storyTextTop();
+  float gap = storyLineGap();
+
+  fillUiInk(185);
+  textAlign(LEFT, CENTER);
+  textFont(smallFont);
+  textSize(13);
+  text("PAGE COMPLETE", left, top - gap * 1.18);
+
+  fillUiInk(226);
+  textFont(storyFont);
+  textSize(storyTextSize());
+  textAlign(LEFT, CENTER);
+
+  if (storyDropStarted) {
+    for (int i = 0; i < storyPieces.length; i++) {
+      storyPieces[i].display();
+    }
+  } else {
+    drawStoryWritingText(left, top, gap);
+  }
+
+  textFont(smallFont);
+  textSize(14);
+  textAlign(CENTER, CENTER);
+  fillUiInk(150);
+  if (!storyFinishedWriting()) {
+    text("The page is remembering", width / 2, height * 0.88);
+  } else if (!storyDropStarted) {
+    text("Click to release the sentences", width / 2, height * 0.88);
+  } else if (storyPiecesGone()) {
+    text("Click to restart the paper field", width / 2, height * 0.88);
+  }
+}
+
+void drawStoryWritingText(float left, float top, float gap) {
+  // 按字符数量从第一行写到最后一行像文字蛇一样占满横线
+  int remaining = storyVisibleChars;
+  int cursorLine = -1;
+  String cursorText = "";
+
+  for (int i = 0; i < storyLines.length; i++) {
+    String lineText = storyLines[i];
+    int visible = constrain(remaining, 0, lineText.length());
+    if (visible > 0) {
+      String part = lineText.substring(0, visible);
+      text(part, left, top + i * gap);
+      cursorLine = i;
+      cursorText = part;
+    }
+    remaining -= lineText.length();
+  }
+
+  if (!storyFinishedWriting() && cursorLine >= 0) {
+    float cursorX = left + textWidth(cursorText) + 8;
+    float cursorY = top + cursorLine * gap;
+    noStroke();
+    fillUiInk(190 + 45 * sin(frameCount * 0.22));
+    ellipse(cursorX, cursorY + 1, 7, 7);
+  }
+}
+
+void drawStoryGuideLines() {
+  // 背景里的填字横线游戏中很淡通关时更明显
+  float left = storyTextLeft();
+  float right = storyTextRight();
+  float top = storyTextTop();
+  float gap = storyLineGap();
+  float d = darkAmount();
+  float a = gameState == STORY ? 92 : 26;
+  int c = lerpColor(color(104, 85, 58), color(232, 210, 176), d);
+
+  stroke(red(c), green(c), blue(c), a);
+  strokeWeight(gameState == STORY ? 1.3 : 0.8);
+  noFill();
+
+  for (int i = 0; i < storyLines.length; i++) {
+    float y = top + i * gap + storyTextSize() * 0.56;
+    beginShape();
+    for (float x = left; x <= right; x += 54) {
+      float wobble = (noise(i * 9.7, x * 0.006) - 0.5) * (gameState == STORY ? 4.0 : 2.0);
+      vertex(x, y + wobble);
+    }
+    vertex(right, y + (noise(i * 9.7, right * 0.006) - 0.5) * 2.0);
+    endShape();
+  }
+}
+
 void drawDirectionGuide() {
-  // 中心方向线：让玩家知道鼠标方向正在控制飞机移动。
+  // 中心方向线让玩家知道鼠标方向正在控制飞机移动
   float cx = width / 2.0;
   float cy = height / 2.0;
   PVector d = new PVector(mouseX - cx, mouseY - cy);
@@ -285,7 +382,7 @@ void drawDirectionGuide() {
 }
 
 void drawPaperAirplane(float x, float y, float s, float a, boolean invincible) {
-  // 用 shape 和 line 画纸飞机，不用图片，这样更能体现 Processing 绘图。
+  // 用 shape 和 line 画纸飞机不用图片这样更能体现 Processing 绘图
   pushMatrix();
   translate(x, y);
   rotate(a);
@@ -336,7 +433,7 @@ void drawPaperAirplane(float x, float y, float s, float a, boolean invincible) {
 }
 
 void drawStamp(float x, float y, float s, int type, float rotation) {
-  // 邮票收集物，有圆形和方形两种纸贴感觉。
+  // 邮票收集物有圆形和方形两种纸贴感觉
   pushMatrix();
   translate(x, y);
   rotate(rotation);
@@ -392,7 +489,7 @@ void drawStamp(float x, float y, float s, int type, float rotation) {
 }
 
 void drawInkBlot(float x, float y, float s, float seed, int type) {
-  // 敌人本体：普通是墨渍，暗黑阶段会叠加鬼脸。
+  // 敌人本体普通是墨渍暗黑阶段会叠加鬼脸
   pushMatrix();
   translate(x, y);
 
@@ -447,7 +544,7 @@ void drawInkBlot(float x, float y, float s, float seed, int type) {
 }
 
 void drawBlotShape(float x, float y, float s, float seed, float t) {
-  // 用 noise 做不规则墨渍边缘，避免太像普通圆形。
+  // 用 noise 做不规则墨渍边缘避免太像普通圆形
   beginShape();
   int steps = 34;
   for (int i = 0; i < steps; i++) {
@@ -462,7 +559,7 @@ void drawBlotShape(float x, float y, float s, float seed, float t) {
 }
 
 void drawGhostFace(float s, float seed, int type) {
-  // 暗黑阶段的鬼脸：眼洞、嘴巴、牙齿和裂纹。
+  // 暗黑阶段的鬼脸眼洞嘴巴牙齿和裂纹
   float breathe = sin(frameCount * 0.07 + seed) * s * 0.018;
 
   noStroke();
@@ -514,7 +611,7 @@ void drawGhostFace(float s, float seed, int type) {
 }
 
 void drawScallopedCircle(float x, float y, float s, int baseCol, float alphaValue) {
-  // 圆形邮票的齿边，用很多顶点绕一圈画出来。
+  // 圆形邮票的齿边用很多顶点绕一圈画出来
   noStroke();
   fill(red(baseCol), green(baseCol), blue(baseCol), alphaValue);
   beginShape();
@@ -529,7 +626,7 @@ void drawScallopedCircle(float x, float y, float s, int baseCol, float alphaValu
 }
 
 void drawScallopedSquare(float x, float y, float s, int baseCol, float alphaValue) {
-  // 方形邮票的齿边，用一圈小圆点加中间方块。
+  // 方形邮票的齿边用一圈小圆点加中间方块
   noStroke();
   fill(red(baseCol), green(baseCol), blue(baseCol), alphaValue);
   rectMode(CENTER);
@@ -544,7 +641,7 @@ void drawScallopedSquare(float x, float y, float s, int baseCol, float alphaValu
 }
 
 void drawPinnedCornerScraps() {
-  // 屏幕角落的装饰纸片，让画面更像纸质海报。
+  // 屏幕角落的装饰纸片让画面更像纸质海报
   noStroke();
   fill(255, 253, 247, 58);
   pushMatrix();
@@ -569,7 +666,7 @@ void drawPinnedCornerScraps() {
 }
 
 void drawDarkPaperOverlay() {
-  // 暗黑纸纹已经提前生成，这里只按透明度叠加，减少切换卡顿。
+  // 暗黑纸纹已经提前生成这里只按透明度叠加减少切换卡顿
   float d = darkAmount();
   if (darkPaperTexture == null || d <= 0) {
     return;
@@ -581,7 +678,7 @@ void drawDarkPaperOverlay() {
 }
 
 void drawPhaseTransitionNotice() {
-  // 进入暗黑阶段时出现的提示纸条。
+  // 进入暗黑阶段时出现的提示纸条
   if (phaseTransitionTimer <= 0) {
     return;
   }
@@ -615,7 +712,7 @@ void drawPhaseTransitionNotice() {
 }
 
 void drawPosterScraps() {
-  // 开始和结束界面用的额外纸片装饰。
+  // 开始和结束界面用的额外纸片装饰
   noStroke();
   fill(255, 253, 247, 96);
   pushMatrix();
@@ -640,7 +737,7 @@ void drawPosterScraps() {
 }
 
 void drawPosterLabel() {
-  // 右上角像设计稿标签一样的小纸片。
+  // 右上角像设计稿标签一样的小纸片
   float w = min(390, width * 0.30);
   float h = 74;
   float x = width - w - width * 0.08;
@@ -665,7 +762,7 @@ void drawPosterLabel() {
 }
 
 void drawTornPaperLip(float x, float y, float w, float h) {
-  // Game Over 卡片上方的撕纸边。
+  // Game Over 卡片上方的撕纸边
   noStroke();
   if (darkPaperMode()) {
     fill(84, 67, 52, 178);
@@ -682,7 +779,7 @@ void drawTornPaperLip(float x, float y, float w, float h) {
 }
 
 void drawSmallTrophy(float x, float y) {
-  // 用简单线条画一个奖杯，不用图标素材。
+  // 用简单线条画一个奖杯不用图标素材
   pushMatrix();
   translate(x, y);
   stroke(uiInkColor());
@@ -709,7 +806,7 @@ void drawSmallTrophy(float x, float y) {
 }
 
 void drawDottedCurve(float x1, float y1, float x2, float y2, float x3, float y3) {
-  // 开始界面纸飞机后面的虚线轨迹。
+  // 开始界面纸飞机后面的虚线轨迹
   stroke(COL_TEXT, 112);
   strokeWeight(1.5);
   noFill();
@@ -729,7 +826,7 @@ void drawDottedCurve(float x1, float y1, float x2, float y2, float x3, float y3)
 }
 
 void dashedLine(float x1, float y1, float x2, float y2, float dash, float gap) {
-  // 自己写的虚线函数，Processing 默认没有直接的 dashed line。
+  // 自己写的虚线函数Processing 默认没有直接的 dashed line
   PVector a = new PVector(x1, y1);
   PVector b = new PVector(x2, y2);
   PVector d = PVector.sub(b, a);
@@ -744,7 +841,7 @@ void dashedLine(float x1, float y1, float x2, float y2, float dash, float gap) {
 }
 
 void drawTornRect(float cx, float cy, float w, float h, float seed, float roughness) {
-  // 画撕纸边矩形。四条边都用 noise 加一点抖动。
+  // 画撕纸边矩形四条边都用 noise 加一点抖动
   beginShape();
   int perSide = 6;
   for (int i = 0; i <= perSide; i++) {
@@ -771,6 +868,6 @@ void drawTornRect(float cx, float cy, float w, float h, float seed, float roughn
 }
 
 float randomStable(float seed) {
-  // 根据 seed 得到稳定的随机感，避免每帧乱跳。
+  // 根据 seed 得到稳定的随机感避免每帧乱跳
   return 0.72 + noise(seed * 0.21) * 0.55;
 }
