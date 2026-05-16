@@ -1,5 +1,5 @@
-// 音乐管理类。
-// 这个文件用普通 Java 写，是因为 Processing 的 .pde 预处理器容易误判 Java Sound 代码。
+// 音乐管理类
+// 这个文件用普通 Java 写是因为 Processing 的 pde 预处理器容易误判 Java Sound 代码
 import java.io.File;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -7,83 +7,99 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
 public class AudioManager {
-  // 两首音乐的路径：普通阶段和暗黑阶段。
-  private final String normalPath;
-  private final String darkPath;
-  private final int fadeFrames;
+  // 这里只有一首背景音乐
+  private final String dataFolderPath;
+  private Clip bgmClip;
 
-  // Clip 是 Java 自带的音频播放器对象。
-  private Clip normalClip;
-  private Clip darkClip;
-
-  public AudioManager(String normalPath, String darkPath, int fadeFrames) {
-    // 构造函数只保存路径，真正读取文件在 load()。
-    this.normalPath = normalPath;
-    this.darkPath = darkPath;
-    this.fadeFrames = fadeFrames;
+  public AudioManager(String dataFolderPath) {
+    // 构造函数只保存 data 文件夹路径
+    this.dataFolderPath = dataFolderPath;
   }
 
   public void load() {
-    // 如果文件不存在，loadClip 会返回 null，游戏不会崩。
-    normalClip = loadClip(normalPath, "paper_drift_normal.wav");
-    darkClip = loadClip(darkPath, "paper_drift_dark.wav");
-  }
-
-  public void start() {
-    // 游戏开始时两首都开始循环，暗黑音乐音量为 0，这样切换时不会卡一下。
-    startLoop(normalClip, 0.74f);
-    startLoop(darkClip, 0.0f);
-  }
-
-  public void startDarkLoop() {
-    // 保险用：如果暗黑音乐还没跑，就从头开始静音循环。
-    if (darkClip != null && !darkClip.isRunning()) {
-      startLoop(darkClip, 0.0f);
-    }
-  }
-
-  public void stop() {
-    // 游戏结束时停止两首音乐。
-    stopClip(normalClip);
-    stopClip(darkClip);
-  }
-
-  public void update(int phase, int phaseTwoFrames) {
-    // 普通阶段只听 normal，暗黑阶段 normal 淡出、dark 淡入。
-    if (phase == 1) {
-      setVolume(normalClip, 0.74f);
-      setVolume(darkClip, 0.0f);
+    // 优先找 bgm wav 然后找 data 文件夹里的第一首音频
+    File musicFile = findMusicFile();
+    if (musicFile == null) {
+      System.out.println("Music file not found in data folder");
       return;
     }
 
-    startDarkLoop();
-    float fade = Math.max(0.0f, Math.min(1.0f, phaseTwoFrames / (float)fadeFrames));
-    setVolume(normalClip, 0.74f * (1.0f - fade));
-    setVolume(darkClip, 0.82f * fade);
+    bgmClip = loadClip(musicFile);
   }
 
-  private Clip loadClip(String path, String label) {
-    // 读取 wav 文件，出错只打印信息，不影响游戏本身。
-    try {
-      File soundFile = new File(path);
-      if (!soundFile.exists()) {
-        System.out.println("Music file not found: data/" + label);
-        return null;
-      }
+  public void start() {
+    // 游戏开始后循环播放这一首背景音乐
+    startLoop(bgmClip, 0.76f);
+  }
 
+  public void startDarkLoop() {
+    // 单曲版本不需要切换音乐
+  }
+
+  public void stop() {
+    // 游戏结束时停止音乐
+    stopClip(bgmClip);
+  }
+
+  public void update(int phase, int phaseTwoFrames) {
+    // 单曲版本不做淡入淡出 这里只保持音量稳定
+    setVolume(bgmClip, 0.76f);
+  }
+
+  private File findMusicFile() {
+    File dataFolder = new File(dataFolderPath);
+    if (!dataFolder.exists() || !dataFolder.isDirectory()) {
+      return null;
+    }
+
+    File preferredWav = new File(dataFolder, "bgm.wav");
+    if (preferredWav.exists()) {
+      return preferredWav;
+    }
+
+    File preferredMp3 = new File(dataFolder, "bgm.mp3");
+    if (preferredMp3.exists()) {
+      return preferredMp3;
+    }
+
+    File[] files = dataFolder.listFiles();
+    if (files == null) {
+      return null;
+    }
+
+    for (int i = 0; i < files.length; i++) {
+      String name = files[i].getName().toLowerCase();
+      if (name.endsWith(".wav")) {
+        return files[i];
+      }
+    }
+
+    for (int i = 0; i < files.length; i++) {
+      String name = files[i].getName().toLowerCase();
+      if (name.endsWith(".mp3")) {
+        return files[i];
+      }
+    }
+
+    return null;
+  }
+
+  private Clip loadClip(File soundFile) {
+    // Java Sound 最稳定的是 wav 如果 mp3 不能读取会安全跳过
+    try {
       AudioInputStream stream = AudioSystem.getAudioInputStream(soundFile);
       Clip loadedClip = AudioSystem.getClip();
       loadedClip.open(stream);
       stream.close();
       return loadedClip;
     } catch (Exception e) {
-      System.out.println("Could not load music file " + label + ": " + e.getMessage());
+      System.out.println("Could not load music file " + soundFile.getName() + " " + e.getMessage());
       return null;
     }
   }
 
   private void startLoop(Clip clip, float volume) {
-    // 从头开始循环播放。
+    // 从头开始循环播放
     if (clip == null) {
       return;
     }
@@ -94,18 +110,8 @@ public class AudioManager {
     clip.loop(Clip.LOOP_CONTINUOUSLY);
   }
 
-  private void reset(Clip clip) {
-    // 停止并回到开头。
-    if (clip == null) {
-      return;
-    }
-
-    clip.stop();
-    clip.setFramePosition(0);
-  }
-
   private void stopClip(Clip clip) {
-    // 安全停止，避免 null 报错。
+    // 安全停止避免空对象报错
     if (clip == null) {
       return;
     }
@@ -115,7 +121,7 @@ public class AudioManager {
   }
 
   private void setVolume(Clip clip, float amount) {
-    // 把 0~1 的音量换成 Java Sound 用的分贝值。
+    // 把 0 到 1 的音量换算成 Java Sound 使用的分贝
     if (clip == null || !clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
       return;
     }

@@ -1,8 +1,8 @@
 // PAPER DRIFT 主程序
-// 这是整个游戏的入口，我把状态、分数、难度、音乐、背景纹理都放在这里统一管理。
+// 这是整个游戏的入口，我把状态、分数、难度、音乐、背景纹理都放在这里统一管理
 // 草图需要用 Processing Java mode 打开 PaperDrift.pde 来运行。
 
-// 游戏有三个大状态：开始界面、游戏中、结束界面。
+// 状态索引 开始界面、游戏中、结束界面
 int START = 0;
 int PLAYING = 1;
 int GAME_OVER = 2;
@@ -15,24 +15,24 @@ int gameOverFrame = -1000;
 int playFrames = 0;
 int lastEnemyAddFrame = -1000;
 
-// 难度参数：敌人数量会按时间越来越多，暗黑阶段上限更高。
+// 难度参数：敌人数量会按时间越来越多，暗黑阶段上限更高
 int START_ENEMY_COUNT = 10;
 int MAX_ENEMY_COUNT = 18;
 int DARK_MAX_ENEMY_COUNT = 60;
 int NORMAL_ENEMY_SECONDS_PER_EXTRA = 2;
 
-// 第二阶段参数：达到 12 分进入暗黑纸张模式。
+// 第二阶段参数：达到 12 分进入暗黑模式
 int PHASE_TWO_SCORE = 12;
 int PHASE_TWO_MIN_ENEMIES = 20;
 int PHASE_NOTICE_FRAMES = 180;
 int PHASE_BLEND_FRAMES = 120;
 int MUSIC_FADE_FRAMES = 120;
 
-// 敌人速度也会随着时间增加，这两个参数控制增长节奏。
+// 敌人速度也会随着时间增加，这两个参数控制增长节奏
 int NORMAL_SPEED_STEP_SECONDS = 12;
 int DARK_SPEED_STEP_SECONDS = 5;
 
-// phase=1 是普通阶段，phase=2 是暗黑阶段。
+// phase=1 是普通阶段，phase=2 是暗黑阶段，phaseTransitionTimer 用来控制阶段切换时的过渡效果，darkBlend 用来视觉上慢慢变暗
 int phase = 1;
 int phaseTransitionTimer = 0;
 int phaseTwoFrames = 0;
@@ -324,7 +324,7 @@ void mouseMoved() {
 
 void loadMusic() {
   // 音乐是可选资源，没有 wav 文件也不会影响游戏运行。
-  audioManager = new AudioManager(dataPath("paper_drift_normal.wav"), dataPath("paper_drift_dark.wav"), MUSIC_FADE_FRAMES);
+  audioManager = new AudioManager(dataPath(""));
   audioManager.load();
 }
 

@@ -13,14 +13,13 @@ The visual direction is intentionally paper-based: off-white texture, rounded pa
 
 The sketch uses `fullScreen()` and does not require keyboard input during gameplay.
 
-Optional music files can be placed in:
+Optional music can be placed in:
 
 ```text
-PaperDrift/data/paper_drift_normal.wav
-PaperDrift/data/paper_drift_dark.wav
+PaperDrift/data/bgm.wav
 ```
 
-If these files are missing, the game still runs normally and prints a console message.
+The code also tries the first `.wav` or `.mp3` file inside `data/`, but `.wav` is the most reliable format for Java Sound in Processing. If the music file cannot be loaded, the game still runs normally and prints a console message.
 
 ## Gameplay
 
@@ -55,7 +54,7 @@ The second stage begins when the score reaches 12.
 - Dark-stage enemy count is capped at 60.
 - Enemy tracking and speed increase strongly over time.
 - Player speed also increases so the game remains controllable.
-- The dark music loop fades in while the normal loop fades out.
+- The same background music continues during both stages.
 
 ## Project Architecture
 
@@ -69,7 +68,7 @@ PaperDrift/
   InkEnemy.pde         Ink enemy movement, chasing logic, collision, display hook
   PaperScrap.pde       Background paper scraps and ambient drift
   UI.pde               Paper UI, HUD, cards, stamps, ink blots, ghost faces, dark overlay
-  AudioManager.java    Java Sound music loading, looping, fading, and failure handling
+  AudioManager.java    Java Sound music loading looping and failure handling
   data/                Optional WAV music assets
 ```
 
@@ -226,7 +225,7 @@ Responsibilities:
 - Loads optional WAV files from `data/`.
 - Starts both music loops.
 - Keeps dark music silent until phase two.
-- Fades normal music out and dark music in.
+- Plays one background music loop.
 - Fails safely if audio files are missing or unsupported.
 
 ## Processing Concepts Demonstrated
@@ -262,4 +261,3 @@ Expected output:
 ```text
 Finished.
 ```
-
