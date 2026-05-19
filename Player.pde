@@ -90,4 +90,9 @@ class Player {
     // 只要计时器大于 0 就算无敌
     return invincibleTimer > 0;
   }
+
+  float hitRadius() {
+    // 玩家碰撞体积比飞机核心略大一点，手感上更贴近视觉轮廓
+    return radius * 1.12;
+  }
 }

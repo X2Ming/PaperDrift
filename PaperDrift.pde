@@ -66,9 +66,7 @@ ArrayList<Stamp> stamps;
 ArrayList<InkEnemy> enemies;
 ArrayList<PaperScrap> scraps;
 
-// 纸张纹理提前画到 PGraphics 里这样运行时不会太卡
-PGraphics paperTexture;
-PGraphics darkPaperTexture;
+// 世界风用于背景物体轻微漂移
 PVector worldWind = new PVector(0, 0);
 
 // 字体
@@ -103,8 +101,7 @@ void setup() {
   storyFont = createFont("Serif", 24, true);
 
   loadMusic();
-  generatePaperTexture();
-  generateDarkPaperTexture();
+  loadUiAssets();
   prepareStoryText();
   initGame();
   gameState = START;
@@ -468,113 +465,11 @@ void updateMusic() {
   }
 }
 
-void generatePaperTexture() {
-  // 程序生成纸纹点淡线噪声混合避免依赖图片素材
-  paperTexture = createGraphics(width, height);
-  paperTexture.beginDraw();
-  paperTexture.background(243, 239, 230);
-  paperTexture.noStroke();
-  randomSeed(19);
-  noiseSeed(19);
-
-  int dotCount = int(constrain(width * height / 370.0, 5000, 18000));
-  for (int i = 0; i < dotCount; i++) {
-    // 小点让背景像有纸纤维和旧纸颗粒
-    float x = random(width);
-    float y = random(height);
-    float n = noise(x * 0.009, y * 0.009);
-    if (i % 3 == 0) {
-      paperTexture.fill(116, 101, 75, 8 + 10 * n);
-    } else {
-      paperTexture.fill(255, 255, 250, 7 + 8 * n);
-    }
-    float d = random(0.6, 2.3);
-    paperTexture.ellipse(x, y, d, d);
-  }
-
-  for (int i = 0; i < 85; i++) {
-    // 这些是很淡的横向纸纹线
-    float y = random(height);
-    paperTexture.stroke(130, 113, 84, random(8, 18));
-    paperTexture.strokeWeight(random(0.3, 0.9));
-    paperTexture.noFill();
-    paperTexture.beginShape();
-    for (int x = -20; x <= width + 20; x += 55) {
-      float yy = y + noise(x * 0.008, i * 0.21) * 20 - 10;
-      paperTexture.vertex(x, yy);
-    }
-    paperTexture.endShape();
-  }
-
-  for (int i = 0; i < 55; i++) {
-    // 再加一些浅色细线让纸面不完全平
-    float x = random(width);
-    paperTexture.stroke(255, 250, 238, random(10, 24));
-    paperTexture.strokeWeight(random(0.4, 1.2));
-    paperTexture.line(x, random(height), x + random(-70, 70), random(height));
-  }
-
-  paperTexture.endDraw();
-}
-
-void generateDarkPaperTexture() {
-  // 暗黑纸纹提前生成切换阶段时只叠图不会每帧重算导致卡顿
-  darkPaperTexture = createGraphics(width, height);
-  darkPaperTexture.beginDraw();
-  darkPaperTexture.clear();
-  darkPaperTexture.noStroke();
-  darkPaperTexture.fill(36, 28, 23, 178);
-  darkPaperTexture.rect(0, 0, width, height);
-
-  for (int i = 0; i < 54; i++) {
-    // 污渍斑点像纸被墨水和灰尘弄脏
-    float x = noise(i * 0.41, 12.7) * width;
-    float y = noise(i * 0.37, 28.2) * height;
-    float w = 26 + noise(i * 0.23, 7.9) * 120;
-    float h = 8 + noise(i * 0.29, 4.2) * 46;
-    float a = noise(i * 0.19, 91.2) * TWO_PI;
-
-    darkPaperTexture.pushMatrix();
-    darkPaperTexture.translate(x, y);
-    darkPaperTexture.rotate(a);
-    darkPaperTexture.fill(15, 10, 8, 16);
-    darkPaperTexture.ellipse(0, 0, w, h);
-    darkPaperTexture.popMatrix();
-  }
-
-  darkPaperTexture.stroke(223, 202, 169, 42);
-  darkPaperTexture.strokeWeight(1);
-  darkPaperTexture.noFill();
-  for (int c = 0; c < 6; c++) {
-    // 纸面裂痕用折线模拟
-    float x = noise(c * 2.8, 44.0) * width;
-    float y = noise(c * 2.8, 55.0) * height;
-    darkPaperTexture.beginShape();
-    for (int i = 0; i < 8; i++) {
-      float px = x + (i - 3) * 34 + (noise(c, i * 0.6) - 0.5) * 36;
-      float py = y + i * 22 + (noise(c + 40, i * 0.5) - 0.5) * 44;
-      darkPaperTexture.vertex(px, py);
-    }
-    darkPaperTexture.endShape();
-  }
-
-  darkPaperTexture.noFill();
-  for (int i = 0; i < 18; i++) {
-    // 一圈圈暗角制造压迫感
-    darkPaperTexture.stroke(13, 8, 6, 10);
-    darkPaperTexture.strokeWeight(18);
-    darkPaperTexture.rect(i * 8, i * 6, width - i * 16, height - i * 12, 10);
-  }
-
-  darkPaperTexture.endDraw();
-}
-
 void drawPaperBackground() {
-  // 基础纸纹始终存在第二阶段再叠暗色纸纹
+  // 背景和暗黑纸纹都从 PNG 加载，darkBlend 控制暗黑阶段平滑淡入。
   background(COL_BG);
-  image(paperTexture, 0, 0);
-  drawPinnedCornerScraps();
-  if (phase == 2) {
+  drawUiImage(paperBackground, 0, 0, width, height);
+  if (darkAmount() > 0) {
     drawDarkPaperOverlay();
   }
   if (gameState == PLAYING || gameState == STORY) {

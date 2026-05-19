@@ -41,7 +41,7 @@ class InkEnemy {
     pos.y += worldWind.y * 0.35;
 
     // 碰到边缘会反弹一点不让敌人卡在屏幕外
-    float margin = size * 0.7;
+    float margin = hitRadius();
     if (pos.x < margin || pos.x > width - margin) {
       vel.x *= -0.72;
       pos.x = constrain(pos.x, margin, width - margin);
@@ -54,13 +54,21 @@ class InkEnemy {
 
   void display() {
     // 暗黑阶段敌人视觉上变大一点压迫感更强
-    float visualSize = size;
-    visualSize *= 1.0 + darkBlend * 0.18;
-    drawInkBlot(pos.x, pos.y, visualSize, blotSeed, type);
+    drawInkBlot(pos.x, pos.y, visualBaseSize(), blotSeed, type);
+  }
+
+  float visualBaseSize() {
+    return size * (1.0 + darkBlend * 0.18);
+  }
+
+  float hitRadius() {
+    // UI.pde 里 drawInkBlot 会再按贴图视觉比例放大，这里保持碰撞半径和实际显示大小一致。
+    float imageDiameter = visualBaseSize() * (1.58 + darkAmount() * 0.20);
+    return imageDiameter * 0.5;
   }
 
   boolean hits(Player p) {
-    // 用圆形距离判断碰撞
-    return PVector.dist(pos, p.pos) < p.radius + size * 0.36;
+    // 敌人碰撞体积跟屏幕上的实际贴图大小一致，玩家体积略微放大。
+    return PVector.dist(pos, p.pos) < p.hitRadius() + hitRadius();
   }
 }

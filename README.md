@@ -6,9 +6,9 @@
 
 **PAPER DRIFT** is a full-screen Processing Java game that combines a premium paper-craft poster interface with a mouse-controlled drifting game. The player guides a hand-drawn paper airplane through a paper field, collects stamp-like tokens, avoids ink enemies, and eventually enters a darker second phase.
 
-视觉风格保持温暖、极简、纸艺感：米白纸纹、圆角纸卡、柔和阴影、纸屑拼贴、低饱和印章、陶土橙墨迹、暗黑阶段的深咖纸面，以及通关后的英文故事纸页。项目刻意避开赛博风、霓虹风、黑色 HUD 和普通街机小游戏界面。
+视觉风格保持温暖、极简、纸艺感：米白纸纹、圆角纸卡、柔和阴影、纸屑拼贴、低饱和印章、陶土橙墨迹、暗黑阶段的深咖纸面，以及通关后的英文故事纸页。主要 UI 与角色外观已经改为从 `data/ui/` 导入 PNG，代码只保留布局、游戏逻辑和动态文字。
 
-The visual direction stays close to the reference image: warm paper texture, rounded paper cards, soft shadows, paper scraps, muted stamps, clay-orange ink blots, a dark paper phase, and a final story page written across fill-in lines. It avoids cyberpunk, neon, black arcade HUD panels, and full-image UI shortcuts.
+The visual direction stays close to the reference image: warm paper texture, rounded paper cards, soft shadows, paper scraps, muted stamps, clay-orange ink blots, a dark paper phase, and a final story page written across fill-in lines. Most UI and game object visuals now load from PNG files in `data/ui/`, while the code keeps the layout, gameplay logic, and dynamic text.
 
 ---
 
@@ -115,9 +115,10 @@ PaperDrift/
   InkEnemy.pde         墨渍敌人，追踪玩家，速度增长，碰撞检测
   PaperScrap.pde       背景纸屑，漂浮移动，纸质装饰
   StoryPiece.pde       通关故事句子，重力下落，透明度消失
-  UI.pde               纸质 UI，HUD，卡片，飞机，印章，墨渍，鬼脸，故事横线
+  UI.pde               加载 PNG 视觉资源，绘制 HUD、界面、飞机、印章、敌人和故事横线
   AudioManager.java    Java Sound 音乐加载，循环播放，失败降级
-  data/                可选的单首背景音乐文件
+  data/                背景音乐和 UI 图片资源
+  data/ui/             纸质背景、HUD、面板、飞机、邮票、敌人、纸屑等 PNG
 ```
 
 ### `PaperDrift.pde`
@@ -130,7 +131,7 @@ Responsibilities:
 
 - 定义 `START`、`PLAYING`、`GAME_OVER`、`STORY` 四个状态
 - 创建全屏画布
-- 初始化字体、纸张纹理、暗黑纸纹、音乐、玩家、印章、敌人、纸屑
+- 初始化字体、UI 图片资源、音乐、玩家、印章、敌人、纸屑
 - 管理分数、生命、游戏时间、阶段状态
 - 普通阶段和暗黑阶段的敌人数量增长
 - 分数到 12 触发暗黑阶段
@@ -156,8 +157,7 @@ Important functions:
 - `startStoryMode()`
 - `updateStory()`
 - `storyPiecesGone()`
-- `generatePaperTexture()`
-- `generateDarkPaperTexture()`
+- `drawPaperBackground()`
 
 ### `Player.pde`
 
@@ -266,27 +266,20 @@ Key behavior:
 
 ### `UI.pde`
 
-视觉系统文件，负责大部分纸质界面绘制。
+视觉系统文件，负责加载和绘制 PNG 资源，以及少量动态文字。
 
 Responsibilities:
 
-- 绘制纸卡和柔和阴影
-- 绘制开始界面
-- 绘制游戏 HUD
-- 绘制右下角提示卡
-- 绘制 Game Over 界面
+- 加载 `data/ui/` 下的图片资源
+- 绘制开始界面、HUD、右下角提示卡和 Game Over 面板
 - 绘制方向引导线
-- 绘制纸飞机
-- 绘制印章贴纸
-- 绘制不规则墨渍
-- 暗黑阶段绘制鬼脸
-- 绘制暗黑纸张覆盖层
+- 用 PNG 绘制纸飞机、印章贴纸、普通墨渍敌人和暗黑鬼脸敌人
+- 使用 `darkBlend` 淡入暗黑纸张、暗黑 HUD 和暗黑敌人贴图
 - 绘制故事横线、故事写入文字和提示文字
 
 Important functions:
 
-- `drawPaperCard()`
-- `drawSoftShadow()`
+- `loadUiAssets()`
 - `drawHUD()`
 - `drawStartScreen()`
 - `drawGameOverScreen()`
@@ -294,7 +287,6 @@ Important functions:
 - `drawPaperAirplane()`
 - `drawStamp()`
 - `drawInkBlot()`
-- `drawGhostFace()`
 - `drawDarkPaperOverlay()`
 - `drawPhaseTransitionNotice()`
 - `drawStoryGuideLines()`
@@ -339,9 +331,9 @@ Responsibilities:
 
 ## 设计说明 Design Notes
 
-这个项目的重点不是把图片贴到屏幕上，而是用 Processing 的图形函数画出纸质海报感。大部分 UI、玩家、敌人、印章、纸屑和故事文字都由代码生成。唯一可选外部资源是一首背景音乐。
+这个分支把复杂视觉改成图片导入：纸质背景、开始/结束面板、HUD、提示条、纸飞机、印章、纸屑和敌人都在 `data/ui/` 中作为 PNG 加载。Processing 代码仍然负责鼠标控制、碰撞、难度、暗黑阶段平滑切换、分数生命和故事文字。
 
-The project focuses on procedural drawing rather than placing a full-image UI on the canvas. Most UI objects, the player, enemies, stamps, scraps, and story text are generated with Processing shapes and logic. The only optional external asset is one background music file.
+This branch moves the complex visual layer into imported images. The paper background, panels, HUD, prompts, plane, stamps, scraps, and enemies load from PNG files in `data/ui/`; Processing still handles mouse control, collisions, difficulty, smooth dark-phase blending, score/lives, and story text.
 
 整体风格关键词：
 
