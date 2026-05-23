@@ -85,7 +85,7 @@ float darkAmount() {
 }
 
 int uiInkColor() {
-  return lerpColor(COL_TEXT, 0xFFEDE1C8, darkAmount());
+  return lerpColor(COL_TEXT, 0xFFF5F0E0, darkAmount());
 }
 
 void fillUiInk(float alphaValue) {
@@ -140,7 +140,8 @@ void drawHUD() {
 
   drawBlendedUiImage(hudLight, hudDark, m, m, w, h);
 
-  fill(uiInkColor());
+  int scoreColor = lerpColor(COL_TEXT, 0xFFFFFFFF, darkAmount());
+  fill(scoreColor);
   textAlign(LEFT, TOP);
   textFont(bodyFont);
   textSize(31);
@@ -150,7 +151,8 @@ void drawHUD() {
 
   textFont(smallFont);
   textSize(13);
-  fillUiInk(160);
+  int hintColor = lerpColor(COL_TEXT, 0xFFEEEEE8, darkAmount());
+  fill(red(hintColor), green(hintColor), blue(hintColor), 160 + 60 * darkAmount());
   if (phase == 2) {
     text("The paper darkens", m + 22, m + 103);
   } else {
@@ -203,7 +205,8 @@ void drawGameOverScreen() {
 
   drawBlendedUiImage(gameOverLight, gameOverDark, x, y, cardW, cardH);
 
-  fill(uiInkColor());
+  int gameOverTextColor = lerpColor(COL_TEXT, 0xFFFFFFFF, darkAmount());
+  fill(gameOverTextColor);
   textAlign(CENTER, CENTER);
   textFont(bodyFont);
   textSize(36);
@@ -217,43 +220,48 @@ void drawStoryScreen() {
     scrap.display();
   }
 
-  float left = storyTextLeft();
+  float centerX = width / 2;
   float top = storyTextTop();
   float gap = storyLineGap();
+  float storyBottom = top + (storyLines.length - 1) * gap;
+
+  textAlign(CENTER, CENTER);
+
+  fillUiInk(226);
+  textFont(titleFont);
+  textSize(56);
+  text("YOU WIN", centerX, top - gap * 1.8);
 
   fillUiInk(185);
-  textAlign(LEFT, CENTER);
   textFont(smallFont);
   textSize(13);
-  text("PAGE COMPLETE", left, top - gap * 1.18);
+  text("PAGE COMPLETE", centerX, top - gap * 0.4);
 
   fillUiInk(226);
   textFont(storyFont);
   textSize(storyTextSize());
-  textAlign(LEFT, CENTER);
 
   if (storyDropStarted) {
     for (int i = 0; i < storyPieces.length; i++) {
       storyPieces[i].display();
     }
   } else {
-    drawStoryWritingText(left, top, gap);
+    drawStoryWritingText(centerX, top, gap);
   }
 
   textFont(smallFont);
   textSize(14);
-  textAlign(CENTER, CENTER);
   fillUiInk(150);
   if (!storyFinishedWriting()) {
-    text("The page is remembering", width / 2, height * 0.88);
+    text("The page is remembering", centerX, storyBottom + gap * 1.5);
   } else if (!storyDropStarted) {
-    text("Click to release the sentences", width / 2, height * 0.88);
+    text("Click to release the sentences", centerX, storyBottom + gap * 1.5);
   } else if (storyPiecesGone()) {
-    text("Click to restart the paper field", width / 2, height * 0.88);
+    text("Click to restart the paper field", centerX, storyBottom + gap * 1.5);
   }
 }
 
-void drawStoryWritingText(float left, float top, float gap) {
+void drawStoryWritingText(float centerX, float top, float gap) {
   int remaining = storyVisibleChars;
   int cursorLine = -1;
   String cursorText = "";
@@ -263,7 +271,7 @@ void drawStoryWritingText(float left, float top, float gap) {
     int visible = constrain(remaining, 0, lineText.length());
     if (visible > 0) {
       String part = lineText.substring(0, visible);
-      text(part, left, top + i * gap);
+      text(part, centerX, top + i * gap);
       cursorLine = i;
       cursorText = part;
     }
@@ -271,7 +279,7 @@ void drawStoryWritingText(float left, float top, float gap) {
   }
 
   if (!storyFinishedWriting() && cursorLine >= 0) {
-    float cursorX = left + textWidth(cursorText) + 8;
+    float cursorX = centerX + textWidth(cursorText) / 2 + 8;
     float cursorY = top + cursorLine * gap;
     noStroke();
     fillUiInk(190 + 45 * sin(frameCount * 0.22));

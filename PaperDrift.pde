@@ -36,12 +36,12 @@ int STORY_SCORE = 24;
 int STORY_WRITE_STEP = 3;
 
 String[] storyLines = {
-  "The page remembers every fold.",
-  "Some marks sleep where the light cannot reach.",
-  "When the stamps drift apart, the quiet begins to tear.",
-  "Ink gathers under the paper skin.",
-  "A small plane carries the scattered pieces home.",
-  "Line by line, the page learns how to breathe again."
+  "Congratulations — you have driven back the ink creatures",
+  "and restored light to the paper world.",
+  "The torn scraps have folded themselves back into place,",
+  "the stamps rest quietly on the page once more.",
+  "Every crease and stain now tells a gentler story,",
+  "and the paper sky drifts on, unshadowed and whole."
 };
 String storyText = "";
 int storyStartFrame = 0;
@@ -317,7 +317,7 @@ void updateStory() {
 
 void resetStoryPieces() {
   storyPieces = new StoryPiece[storyLines.length];
-  float lineX = storyTextLeft();
+  float lineX = width / 2;
   for (int i = 0; i < storyLines.length; i++) {
     float lineY = storyTextTop() + i * storyLineGap();
     storyPieces[i] = new StoryPiece(storyLines[i], lineX, lineY, i);
@@ -337,7 +337,7 @@ float storyTextRight() {
 }
 
 float storyTextTop() {
-  return height * 0.23;
+  return height / 2 - (storyLines.length - 1) * storyLineGap() / 2;
 }
 
 float storyLineGap() {

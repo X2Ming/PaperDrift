@@ -13,7 +13,7 @@ class Player {
     pos = start.copy();
     vel = new PVector(0, 0);
     angle = -0.25;
-    radius = 26;
+    radius = 30;
     invincibleTimer = 0;
   }
 
@@ -25,7 +25,7 @@ class Player {
     // deadZone 是死区鼠标接近中心时飞机会慢下来
     float deadZone = min(width, height) * 0.035;
     float maxControl = min(width, height) * 0.43;
-    float maxSpeed = constrain(min(width, height) * 0.006, 3.0, 6.4) * speedBoost;
+    float maxSpeed = constrain(min(width, height) * 0.007, 4.0, 7.4) * speedBoost;
 
     if (mag > deadZone) {
       // 鼠标离中心越远速度越接近最大速度

@@ -40,7 +40,7 @@ class StoryPiece {
 
     int c = uiInkColor();
     fill(red(c), green(c), blue(c), alphaValue);
-    textAlign(LEFT, CENTER);
+    textAlign(CENTER, CENTER);
     textFont(storyFont);
     textSize(storyTextSize());
     text(textLine, 0, 0);
