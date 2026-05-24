@@ -38,7 +38,6 @@ int PHASE_BLEND_FRAMES = 120;
 
 
 
-
 // enemy speed increase steps (every X seconds, speed increases by a certain amount, see enemyDifficulty())
 int NORMAL_SPEED_STEP_SECONDS = 12;
 // dark mode will increase speed more aggressively, so a separate step is defined for better tuning
@@ -105,11 +104,13 @@ int COL_TAPE = 0xFFE6DCC5;
 // Processing setup and main loop
 // ============================================================
 
+// fullscreen status 
 void settings() {
   fullScreen();
   smooth(4);
 }
 
+// setup runs once at the start, initializes game variables and assets, and sets the initial game state to START
 void setup() {
   frameRate(60);
 
@@ -125,6 +126,7 @@ void setup() {
   gameState = START;
 }
 
+// main draw loop, calls different functions based on the current game state
 void draw() {
   if (gameState == START) {
     drawPaperBackground();
@@ -144,7 +146,7 @@ void draw() {
 }
 
 // ============================================================
-// 游戏初始化
+// game initialization
 // ============================================================
 
 void initGame() {
@@ -166,11 +168,13 @@ void initGame() {
     stamps.add(new Stamp(randomPlayablePosition(90), random(42, 62), i % 3));
   }
 
+  // use arraylist for enemies since the count changes dynamically, and we need to add/remove them
   enemies = new ArrayList<InkEnemy>();
   for (int i = 0; i < START_ENEMY_COUNT; i++) {
     addEnemyFarFromPlayer(false);
   }
-
+ // if enemy count is less than the phase two minimum, add more to reach that count 
+ // so that the transition feels more dramatic
   scraps = new ArrayList<PaperScrap>();
   int scrapCount = int(constrain((width * height) / 42000.0, 22, 44));
   for (int i = 0; i < scrapCount; i++) {
@@ -179,14 +183,15 @@ void initGame() {
 }
 
 // ============================================================
-// 主游戏循环
+// main game update loop
 // ============================================================
 
 void updateGame() {
   playFrames++;
   player.update(playerSpeedBoost());
 
-  // 世界风反向于玩家速度，制造漂流感
+  // wind effect inceases in phase two to create a stronger sense of drifting 
+  // and also adds challenge as it affects enemy movement direction
   worldWind.set(player.vel);
   worldWind.mult(phase == 2 ? -0.18 : -0.07);
 
@@ -194,7 +199,8 @@ void updateGame() {
     scrap.update();
   }
 
-  // 收集邮票：加分 + 重生
+  // collect old stamps and respawn new ones, also increase score when collected
+  // respawn will reduce the chance of new stamps appearing too close to the player for better pacing
   for (Stamp stamp : stamps) {
     stamp.update();
     if (stamp.checkCollected(player)) {
