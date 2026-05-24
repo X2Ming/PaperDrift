@@ -1,6 +1,7 @@
 // ink enemies
 // two stages: normal and dark
 class InkEnemy {
+  PVector pos;
   PVector vel; //speed and direction
   float size; // base size, will be visually scaled up in dark stage
   int type; // enemy type 0-3, determines the shape of the ink blot
