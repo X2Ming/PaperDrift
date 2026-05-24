@@ -151,9 +151,9 @@ void drawHUD() {
   int hintColor = lerpColor(COL_TEXT, 0xFFEEEEE8, darkAmount());
   fill(red(hintColor), green(hintColor), blue(hintColor), 160 + 60 * darkAmount());
   if (phase == 2) {
-    text("The paper darkens", m + 22, m + 103);
+    text("Deadline pressure", m + 22, m + 103);
   } else {
-    text("Move mouse to drift", m + 22, m + 103);
+    text("Collect BNBU tasks", m + 22, m + 103);
   }
 }
 
@@ -190,6 +190,24 @@ void drawStartScreen() {
 
   drawUiImage(startPanel, x, y, cardW, cardH);
   drawPosterLabel();
+
+  noStroke();
+  fill(244, 239, 226, 245);
+  rect(x + cardW * 0.16, y + cardH * 0.15, cardW * 0.68, cardH * 0.38);
+
+  fill(COL_TEXT);
+  textAlign(CENTER, CENTER);
+  textFont(titleFont);
+  textSize(min(46, cardW * 0.105));
+  text("BNBU", x + cardW * 0.50, y + cardH * 0.22);
+  textSize(min(34, cardW * 0.078));
+  text("PAPER DRIFT", x + cardW * 0.50, y + cardH * 0.31);
+
+  textFont(smallFont);
+  textSize(min(15, cardW * 0.034));
+  fill(47, 48, 43, 185);
+  text("Collect DDL, quizzes, exams, and assignments", x + cardW * 0.50, y + cardH * 0.43);
+  text("to redeem reading week.", x + cardW * 0.50, y + cardH * 0.48);
 
   float planeW = min(340, width * 0.28);
   float planeH = planeW * 0.70;
@@ -231,12 +249,12 @@ void drawStoryScreen() {
   fillUiInk(226);
   textFont(titleFont);
   textSize(56);
-  text("YOU WIN", centerX, top - gap * 1.8);
+  text("READING WEEK", centerX, top - gap * 1.8);
 
   fillUiInk(185);
   textFont(smallFont);
   textSize(13);
-  text("PAGE COMPLETE", centerX, top - gap * 0.4);
+  text("BNBU TASKS COMPLETE", centerX, top - gap * 0.4);
 
   fillUiInk(226);
   textFont(storyFont);
@@ -254,11 +272,11 @@ void drawStoryScreen() {
   textSize(14);
   fillUiInk(150);
   if (!storyFinishedWriting()) {
-    text("The page is remembering", centerX, storyBottom + gap * 1.5);
+    text("The semester is being checked off", centerX, storyBottom + gap * 1.5);
   } else if (!storyDropStarted) {
-    text("Click to release the sentences", centerX, storyBottom + gap * 1.5);
+    text("Click to release the pressure", centerX, storyBottom + gap * 1.5);
   } else if (storyPiecesGone()) {
-    text("Click to restart the paper field", centerX, storyBottom + gap * 1.5);
+    text("Click to start another BNBU week", centerX, storyBottom + gap * 1.5);
   }
 }
 
@@ -345,11 +363,26 @@ void drawPaperAirplane(float x, float y, float s, float a, boolean invincible) {
 }
 
 void drawStamp(float x, float y, float s, int type, float rotation) {
-  int idx = constrain(type, 0, 2);
+  int idx = abs(type) % 3;
   float d = darkAmount();
   float visualSize = s * 1.14;
   drawCenteredUiImage(stampLight[idx], x, y, visualSize, visualSize, rotation, 255 * (1 - d));
   drawCenteredUiImage(stampDark[idx], x, y, visualSize, visualSize, rotation, 255 * d);
+
+  String[] taskLabels = { "DDL", "QUIZ", "EXAM", "ASSIGN" };
+  int labelIdx = abs(type) % taskLabels.length;
+  pushMatrix();
+  pushStyle();
+  translate(x, y);
+  rotate(rotation);
+  textAlign(CENTER, CENTER);
+  textFont(smallFont);
+  textSize(max(9, s * 0.22));
+  int labelColor = lerpColor(0xFF394137, 0xFFF4EEDC, d);
+  fill(red(labelColor), green(labelColor), blue(labelColor), 220);
+  text(taskLabels[labelIdx], 0, 1);
+  popStyle();
+  popMatrix();
 }
 
 void drawInkBlot(float x, float y, float s) {
@@ -357,6 +390,15 @@ void drawInkBlot(float x, float y, float s) {
   float visualSize = s * (1.58 + d * 0.20);
   drawCenteredUiImage(enemyInk, x, y, visualSize, visualSize, 0, 255 * (1 - d));
   drawCenteredUiImage(enemyGhost, x, y, visualSize, visualSize, 0, 255 * d);
+
+  pushStyle();
+  textAlign(CENTER, CENTER);
+  textFont(smallFont);
+  textSize(max(10, s * 0.19));
+  int labelColor = lerpColor(0xFF5E4B3B, 0xFFF3E8D4, d);
+  fill(red(labelColor), green(labelColor), blue(labelColor), 220);
+  text("TEACHER", x, y + visualSize * 0.52);
+  popStyle();
 }
 
 void drawPaperScrapAsset(int style, float w, float h, float alphaValue) {

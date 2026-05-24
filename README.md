@@ -1,10 +1,10 @@
-# PAPER DRIFT
+# BNBU PAPER DRIFT
 
 ## 项目简介 Project Overview
 
-**PAPER DRIFT** 是一个全屏 Processing Java 互动游戏，用于 Interactive Art and Design final project。项目把“高级纸质互动海报”和“鼠标控制小游戏”结合在一起，玩家控制一架手绘纸飞机，在纸面世界中漂移、收集印章、躲避墨渍敌人，并在后期进入暗黑纸质阶段。
+**BNBU PAPER DRIFT** 是一个全屏 Processing Java 互动游戏，用于 Interactive Art and Design final project。项目主题是 **Me and BNBU**：玩家控制一架代表自己的手绘纸飞机，在 BNBU 的纸面学期中漂移，收集 DDL、quiz、exam、assignment 等任务印章，躲避由压力形成的墨渍敌人，并在完成足够任务后兑换 reading week。
 
-**PAPER DRIFT** is a full-screen Processing Java game that combines a premium paper-craft poster interface with a mouse-controlled drifting game. The player guides a hand-drawn paper airplane through a paper field, collects stamp-like tokens, avoids ink enemies, and eventually enters a darker second phase.
+**BNBU PAPER DRIFT** is a full-screen Processing Java game themed around **Me and BNBU**. The player guides a hand-drawn paper airplane through a BNBU semester, collects DDL, quiz, exam, and assignment stamps, avoids ink-like pressure enemies, and redeems reading week after completing enough tasks.
 
 视觉风格保持温暖、极简、纸艺感：米白纸纹、圆角纸卡、柔和阴影、纸屑拼贴、低饱和印章、陶土橙墨迹、暗黑阶段的深咖纸面，以及通关后的英文故事纸页。主要 UI 与角色外观已经改为从 `data/ui/` 导入 PNG，代码只保留布局、游戏逻辑和动态文字。
 
@@ -38,13 +38,13 @@ The current version uses one background music loop only. It first tries `bgm.wav
 - 玩家是一架纸飞机
 - 鼠标相对屏幕中心的位置控制移动方向和速度
 - 纸飞机不会瞬移到鼠标位置，而是平滑加速和漂移
-- 收集印章会增加分数
+- 收集 DDL、quiz、exam、assignment 等任务印章会增加分数
 - 碰到墨渍敌人会减少生命
 - 玩家初始有 3 条命
 - 受伤后会短暂无敌
 - 生命归零后进入 Game Over 纸卡界面
 - Game Over 后移动鼠标重新开始
-- 分数达到 24 后进入通关故事纸页
+- 分数达到 24 后兑换 reading week，并进入通关故事纸页
 
 ---
 
@@ -76,9 +76,9 @@ The current version uses one background music loop only. It first tries `bgm.wav
 
 ## 通关故事 Completion Story
 
-当分数达到 24 时，游戏不再无限继续，而是切换到通关故事纸页。
+当分数达到 24 时，游戏不再无限继续，而是代表 BNBU 学期任务完成，玩家兑换 reading week，并切换到通关故事纸页。
 
-When the score reaches 24, the game enters a completion story page instead of continuing forever.
+When the score reaches 24, the BNBU semester tasks are complete, the player redeems reading week, and the game enters a completion story page.
 
 - 背景出现填字用的横线
 - 英文故事像文字蛇一样从上到下快速写满横线
@@ -91,12 +91,12 @@ When the score reaches 24, the game enters a completion story page instead of co
 Story text:
 
 ```text
-The page remembers every fold.
-Some marks sleep where the light cannot reach.
-When the stamps drift apart, the quiet begins to tear.
-Ink gathers under the paper skin.
-A small plane carries the scattered pieces home.
-Line by line, the page learns how to breathe again.
+At BNBU, every stamp is a small academic task:
+DDL, quiz, exam, assignment, and late-night review.
+The paper plane carries them through a busy semester.
+Ink pressure gathers, but each collected mark becomes progress.
+When enough tasks are finished, the page opens quietly:
+reading week is redeemed, and the plane can finally breathe.
 ```
 
 ---

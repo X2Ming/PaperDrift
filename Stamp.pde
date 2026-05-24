@@ -1,9 +1,9 @@
-// collectible stamps — drift / collect / respawn
+// BNBU task stamps — drift / collect / respawn
 
 class Stamp {
   PVector pos;
   float size;
-  int type;          // 0-2: sage / yellow / pink
+  int type;          // 0-3: DDL / quiz / exam / assignment label, image colors are reused
   boolean collected;
   float wobbleSeed;  // unique seed so each stamp wobbles differently
 
@@ -48,7 +48,7 @@ class Stamp {
       pos = randomPlayablePosition(90);
     }
     size = random(42, 62);
-    type = int(random(3));
+    type = int(random(4));
     wobbleSeed = random(1000);
     collected = false;
   }

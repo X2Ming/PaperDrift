@@ -48,14 +48,13 @@ int STORY_SCORE = 24;
 // how many characters of the story text to reveal per frame before the player clicks to drop the story pieces
 int STORY_WRITE_STEP = 3;
 
-// after winning, the story text is revealed line by line and then drops away in pieces when the player clicks.
+// after winning, the BNBU reading-week story is revealed line by line and then drops away in pieces when the player clicks.
 String[] storyLines = {
-  "Congratulations — you have driven back the ink creatures",
-  "and restored light to the paper world.",
-  "The torn scraps have folded themselves back into place,",
-  "the stamps rest quietly on the page once more.",
-  "Every crease and stain now tells a gentler story,",
-  "and the paper sky drifts on, unshadowed and whole."
+  "Congratulations! You win! You have successfully defeated ddl,",
+  "conquered all the assignments, overcome the quizzes,",
+  "avoided the teacher's pursuit, and finally obtained an A in the final,",
+  "thus earning the right to participate in the reading week",
+  "of the next semester."
 };
 String storyText = "";
 int storyStartFrame = 0;
@@ -159,7 +158,7 @@ void initGame() {
 
   stamps = new ArrayList<Stamp>();
   for (int i = 0; i < 20; i++) {
-    stamps.add(new Stamp(randomPlayablePosition(90), random(42, 62), i % 3));
+    stamps.add(new Stamp(randomPlayablePosition(90), random(42, 62), i % 4));
   }
 
   // use arraylist for enemies since the count changes dynamically, and we need to add/remove them
