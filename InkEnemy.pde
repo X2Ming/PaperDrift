@@ -1,14 +1,13 @@
-// 墨渍敌人
-// 普通阶段像橙色墨点暗黑阶段由 UI 绘制成鬼脸墨渍
+// ink enemies
+// two stages: normal and dark
 class InkEnemy {
-  PVector pos;
-  PVector vel;
-  float size;
-  int type;
-  float blotSeed;
+  PVector vel; //speed and direction
+  float size; // base size, will be visually scaled up in dark stage
+  int type; // enemy type 0-3, determines the shape of the ink blot
+  float blotSeed; // each enemy has own random seed, so can has different path
 
   InkEnemy(PVector start, float s, int t) {
-    // 每个敌人有自己的随机种子所以墨渍形状不会完全一样
+    // each enemy has own random seed, so can has different path
     pos = start.copy();
     size = s;
     type = t;
@@ -18,29 +17,31 @@ class InkEnemy {
   }
 
   void update(Player p, float difficulty) {
-    // 朝玩家方向产生一个很小的拉力敌人会慢慢追过来
+    // give a small push for enemy to chase the player, the pull strength depends on the distance and difficulty level
     PVector toPlayer = PVector.sub(p.pos, pos);
     float d = max(1, toPlayer.mag());
     toPlayer.normalize();
 
     float pull = map(constrain(d, 80, 620), 80, 620, 0.010, 0.040);
-    // difficulty 会随时间和暗黑阶段变大敌人更有攻击性
+    // difficulty is a value between 0 and 1, higher and the enemy will faster.
     pull *= 1.0 + difficulty * 0.78;
+    // the pull strength is also affected by the distance to the player, closer enemies will be pulled more strongly
     toPlayer.mult(pull);
     vel.add(toPlayer);
 
-    // 敌人会有一点随机游荡的行为不会完全直线追玩家这样更有生命力
+    // enemy will use mendering movement to make the path less predictable, 
+    // the meandering strength also depends on the difficulty level
     PVector meander = new PVector(sin(frameCount * 0.014 + blotSeed), cos(frameCount * 0.011 + blotSeed));
     meander.mult(0.010 + difficulty * 0.010);
     vel.add(meander);
-    // 限制最大速度
+    // limit the max speed; prevent enemies from flying off the screen 
     vel.limit((1.18 + type * 0.08) * (1.0 + difficulty * 0.95));
 
     pos.add(vel);
     pos.x += worldWind.x * 0.35;
     pos.y += worldWind.y * 0.35;
 
-    // 碰到边缘会反弹一点不让敌人卡在屏幕外
+    // prevent enemy from going off the screen, and bounce back with some energy loss when hitting the edge
     float margin = hitRadius();
     if (pos.x < margin || pos.x > width - margin) {
       vel.x *= -0.72;
@@ -53,7 +54,7 @@ class InkEnemy {
   }
 
   void display() {
-    // 暗黑阶段敌人视觉上变大一点压迫感更强
+    // larger size enemy
     drawInkBlot(pos.x, pos.y, visualBaseSize(), blotSeed, type);
   }
 
@@ -62,13 +63,15 @@ class InkEnemy {
   }
 
   float hitRadius() {
-    // UI.pde 里 drawInkBlot 会再按贴图视觉比例放大，这里保持碰撞半径和实际显示大小一致。
+    // kepp the hit radius in line with the visual size, so that the collision feels more fair to the player. 
+    // The hit radius is slightly smaller than half of the visual size, to give players a bit of leeway when dodging.
     float imageDiameter = visualBaseSize() * (1.58 + darkAmount() * 0.20);
     return imageDiameter * 0.5;
   }
 
   boolean hits(Player p) {
-    // 敌人碰撞体积跟屏幕上的实际贴图大小一致，玩家体积略微放大。
+    // enmey hits the player when the distance between them is less than the sum of their hit radii, 
+    // which means their hit circles are touching or overlapping.
     return PVector.dist(pos, p.pos) < p.hitRadius() + hitRadius();
   }
 }
