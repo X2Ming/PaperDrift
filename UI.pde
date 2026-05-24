@@ -76,9 +76,6 @@ PImage loadUiImage(String fileName) {
   return img;
 }
 
-boolean darkPaperMode() {
-  return darkBlend > 0.12;
-}
 
 float darkAmount() {
   return constrain(darkBlend, 0, 1);
@@ -193,6 +190,10 @@ void drawStartScreen() {
 
   drawUiImage(startPanel, x, y, cardW, cardH);
   drawPosterLabel();
+
+  float planeW = min(340, width * 0.28);
+  float planeH = planeW * 0.70;
+  drawCenteredUiImage(planeAsset, width * 0.73, height * 0.47, planeW, planeH, -0.06, 220);
 }
 
 void drawGameOverScreen() {
@@ -351,7 +352,7 @@ void drawStamp(float x, float y, float s, int type, float rotation) {
   drawCenteredUiImage(stampDark[idx], x, y, visualSize, visualSize, rotation, 255 * d);
 }
 
-void drawInkBlot(float x, float y, float s, float seed, int type) {
+void drawInkBlot(float x, float y, float s) {
   float d = darkAmount();
   float visualSize = s * (1.58 + d * 0.20);
   drawCenteredUiImage(enemyInk, x, y, visualSize, visualSize, 0, 255 * (1 - d));

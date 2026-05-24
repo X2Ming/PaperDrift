@@ -32,17 +32,12 @@ public class AudioManager {
     startLoop(bgmClip, 0.76f);
   }
 
-  public void startDarkLoop() {
-    // 单曲版本不需要切换音乐
-  }
-
   public void stop() {
     // 游戏结束时停止音乐
     stopClip(bgmClip);
   }
 
-  public void update(int phase, int phaseTwoFrames) {
-    // 单曲版本不做淡入淡出 这里只保持音量稳定
+  public void update() {
     setVolume(bgmClip, 0.76f);
   }
 

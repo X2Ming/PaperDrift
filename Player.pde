@@ -1,4 +1,4 @@
-// 玩家类纸飞机本体
+// user 
 // 我把移动旋转受伤无敌都放在这里主程序只需要调用 updatedisplay
 class Player {
   // pos 是位置vel 是速度angle 用来让纸飞机朝着移动方向旋转

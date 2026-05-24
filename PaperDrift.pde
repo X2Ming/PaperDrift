@@ -92,13 +92,7 @@ PFont storyFont;
 
 // colors
 int COL_BG = 0xFFF3EFE6;
-int COL_CARD = 0xFFFFFDF7;
 int COL_TEXT = 0xFF2F302B;
-int COL_SAGE = 0xFFA7B89A;
-int COL_YELLOW = 0xFFD8B75D;
-int COL_PINK = 0xFFCFA6A0;
-int COL_INK = 0xFFC9825A;
-int COL_TAPE = 0xFFE6DCC5;
 
 // ============================================================
 // Processing setup and main loop
@@ -454,11 +448,7 @@ void updateAmbientScraps() {
 // ============================================================
 
 void mouseMoved() {
-  if (gameState == START) {
-    initGame();
-    gameState = PLAYING;
-    startGameplayMusic();
-  } else if (gameState == GAME_OVER && frameCount - gameOverFrame > 35) {
+  if (gameState == GAME_OVER && frameCount - gameOverFrame > 35) {
     initGame();
     gameState = PLAYING;
     startGameplayMusic();
@@ -466,7 +456,11 @@ void mouseMoved() {
 }
 
 void mouseClicked() {
-  if (gameState == STORY && storyFinishedWriting() && !storyDropStarted) {
+  if (gameState == START) {
+    initGame();
+    gameState = PLAYING;
+    startGameplayMusic();
+  } else if (gameState == STORY && storyFinishedWriting() && !storyDropStarted) {
     storyDropStarted = true;
     resetStoryPieces();
   } else if (gameState == STORY && storyDropStarted && storyPiecesGone()) {
@@ -501,7 +495,7 @@ void stopGameplayMusic() {
 
 void updateMusic() {
   if (musicActive && audioManager != null) {
-    audioManager.update(phase, phaseTwoFrames);
+    audioManager.update();
   }
 }
 

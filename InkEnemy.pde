@@ -56,7 +56,7 @@ class InkEnemy {
 
   void display() {
     // larger size enemy
-    drawInkBlot(pos.x, pos.y, visualBaseSize(), blotSeed, type);
+    drawInkBlot(pos.x, pos.y, visualBaseSize());
   }
 
   float visualBaseSize() {
