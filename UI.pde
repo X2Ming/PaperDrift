@@ -1,5 +1,5 @@
-// UI 和视觉资源绘制函数
-// 这一版把复杂纸质 UI 改成 PNG 导入，运行时只负责布局、缩放和少量动态文字。
+// UI and visual asset drawing functions
+// complex paper-craft UI is replaced with PNG imports; runtime only handles layout, scaling, and a few dynamic text elements.
 
 PImage paperBackground;
 PImage darkOverlay;

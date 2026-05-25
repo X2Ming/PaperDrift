@@ -211,7 +211,7 @@ void updateGame() {
 
   updateEnemyCount();
 
-  // 敌人追击 + 伤害判定
+  // enemy chase and damage check
   for (InkEnemy enemy : enemies) {
     enemy.update(player, enemyDifficulty());
     if (enemy.hits(player) && !player.isInvincible()) {
@@ -226,7 +226,7 @@ void updateGame() {
     }
   }
 
-  // 暗黑模式淡入淡出
+  // dark mode blend transition
   if (phaseTransitionTimer > 0) {
     phaseTransitionTimer--;
   }
@@ -240,7 +240,7 @@ void updateGame() {
 }
 
 // ============================================================
-// 敌人数管理
+// enemy count management
 // ============================================================
 
 int targetEnemyCount() {
@@ -285,7 +285,7 @@ void addEnemyFarFromPlayer(boolean markTime) {
 }
 
 // ============================================================
-// 阶段切换（普通 → 暗黑）
+// phase transition (normal → dark)
 // ============================================================
 
 void checkPhaseTransition() {
@@ -302,7 +302,7 @@ void startPhaseTwo() {
 }
 
 // ============================================================
-// 通关故事
+// completion story
 // ============================================================
 
 void prepareStoryText() {
@@ -383,7 +383,7 @@ boolean storyPiecesGone() {
 }
 
 // ============================================================
-// 难度与速度
+// difficulty and speed
 // ============================================================
 
 float enemyDifficulty() {
@@ -404,7 +404,7 @@ float playerSpeedBoost() {
 }
 
 // ============================================================
-// 游戏画面绘制
+// game rendering
 // ============================================================
 
 void drawGame() {
@@ -431,7 +431,7 @@ void drawGame() {
 }
 
 // ============================================================
-// 开始 / 结束界面动画
+// start / end screen animation
 // ============================================================
 
 void updateAmbientScraps() {
@@ -443,7 +443,7 @@ void updateAmbientScraps() {
 }
 
 // ============================================================
-// 输入（只用鼠标）
+// input (mouse only)
 // ============================================================
 
 void mouseMoved() {
@@ -470,7 +470,7 @@ void mouseClicked() {
 }
 
 // ============================================================
-// 音乐控制（实际播放逻辑在 AudioManager.java）
+// music control (playback logic in AudioManager.java)
 // ============================================================
 
 void loadMusic() {
@@ -499,7 +499,7 @@ void updateMusic() {
 }
 
 // ============================================================
-// 背景
+// background
 // ============================================================
 
 void drawPaperBackground() {
@@ -514,7 +514,7 @@ void drawPaperBackground() {
 }
 
 // ============================================================
-// 工具函数
+// utility functions
 // ============================================================
 
 PVector randomPlayablePosition(float margin) {
@@ -535,5 +535,5 @@ float lerpAngle(float current, float target, float amount) {
 }
 
 String scoreText(int value) {
-  return nf(value, 3);  // 格式化为 3 位数字，如 "001"
+  return nf(value, 3);  // format as 3-digit number, e.g. "001"
 }

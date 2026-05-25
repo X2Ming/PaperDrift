@@ -1,5 +1,5 @@
-// 音乐管理类
-// 这个文件用普通 Java 写是因为 Processing 的 pde 预处理器容易误判 Java Sound 代码
+// audio playback manager
+// written as plain Java because the Processing pde preprocessor can misinterpret Java Sound code
 import java.io.File;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -7,17 +7,17 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
 public class AudioManager {
-  // 这里只有一首背景音乐
+  // single BGM track
   private final String dataFolderPath;
   private Clip bgmClip;
 
   public AudioManager(String dataFolderPath) {
-    // 构造函数只保存 data 文件夹路径
+    // store the data folder path for later use
     this.dataFolderPath = dataFolderPath;
   }
 
   public void load() {
-    // 优先找 bgm wav 然后找 data 文件夹里的第一首音频
+    // look for bgm.wav first, then fall back to the first audio file in data folder
     File musicFile = findMusicFile();
     if (musicFile == null) {
       System.out.println("Music file not found in data folder");
@@ -28,12 +28,12 @@ public class AudioManager {
   }
 
   public void start() {
-    // 游戏开始后循环播放这一首背景音乐
+    // start looping the BGM when gameplay begins
     startLoop(bgmClip, 0.76f);
   }
 
   public void stop() {
-    // 游戏结束时停止音乐
+    // stop music when the game ends
     stopClip(bgmClip);
   }
 
@@ -80,7 +80,7 @@ public class AudioManager {
   }
 
   private Clip loadClip(File soundFile) {
-    // Java Sound 最稳定的是 wav 如果 mp3 不能读取会安全跳过
+    // wav is the most reliable format for Java Sound; mp3 may fail gracefully
     try {
       AudioInputStream stream = AudioSystem.getAudioInputStream(soundFile);
       Clip loadedClip = AudioSystem.getClip();
@@ -94,7 +94,7 @@ public class AudioManager {
   }
 
   private void startLoop(Clip clip, float volume) {
-    // 从头开始循环播放
+    // loop from the beginning
     if (clip == null) {
       return;
     }
@@ -106,7 +106,7 @@ public class AudioManager {
   }
 
   private void stopClip(Clip clip) {
-    // 安全停止避免空对象报错
+    // safely stop without crashing on null
     if (clip == null) {
       return;
     }
@@ -116,7 +116,7 @@ public class AudioManager {
   }
 
   private void setVolume(Clip clip, float amount) {
-    // 把 0 到 1 的音量换算成 Java Sound 使用的分贝
+    // convert 0–1 volume to decibels for Java Sound
     if (clip == null || !clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
       return;
     }
