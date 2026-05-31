@@ -1,4 +1,4 @@
-// 玩家类纸飞机本体
+// user 
 // 我把移动旋转受伤无敌都放在这里主程序只需要调用 updatedisplay
 class Player {
   // pos 是位置vel 是速度angle 用来让纸飞机朝着移动方向旋转
@@ -13,7 +13,7 @@ class Player {
     pos = start.copy();
     vel = new PVector(0, 0);
     angle = -0.25;
-    radius = 26;
+    radius = 30;
     invincibleTimer = 0;
   }
 
@@ -25,7 +25,7 @@ class Player {
     // deadZone 是死区鼠标接近中心时飞机会慢下来
     float deadZone = min(width, height) * 0.035;
     float maxControl = min(width, height) * 0.43;
-    float maxSpeed = constrain(min(width, height) * 0.006, 3.0, 6.4) * speedBoost;
+    float maxSpeed = constrain(min(width, height) * 0.007, 4.0, 7.4) * speedBoost;
 
     if (mag > deadZone) {
       // 鼠标离中心越远速度越接近最大速度
@@ -89,5 +89,10 @@ class Player {
   boolean isInvincible() {
     // 只要计时器大于 0 就算无敌
     return invincibleTimer > 0;
+  }
+
+  float hitRadius() {
+    // 玩家碰撞体积比飞机核心略大一点，手感上更贴近视觉轮廓
+    return radius * 1.12;
   }
 }

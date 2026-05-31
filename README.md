@@ -1,14 +1,14 @@
-# PAPER DRIFT
+# BNBU PAPER DRIFT
 
 ## 项目简介 Project Overview
 
-**PAPER DRIFT** 是一个全屏 Processing Java 互动游戏，用于 Interactive Art and Design final project。项目把“高级纸质互动海报”和“鼠标控制小游戏”结合在一起，玩家控制一架手绘纸飞机，在纸面世界中漂移、收集印章、躲避墨渍敌人，并在后期进入暗黑纸质阶段。
+**BNBU PAPER DRIFT** 是一个全屏 Processing Java 互动游戏，用于 Interactive Art and Design final project。项目主题是 **Me and BNBU**：玩家控制一架代表自己的手绘纸飞机，在 BNBU 的纸面学期中漂移，收集 DDL、quiz、exam、assignment 等任务印章，躲避由压力形成的墨渍敌人，并在完成足够任务后兑换 reading week。
 
-**PAPER DRIFT** is a full-screen Processing Java game that combines a premium paper-craft poster interface with a mouse-controlled drifting game. The player guides a hand-drawn paper airplane through a paper field, collects stamp-like tokens, avoids ink enemies, and eventually enters a darker second phase.
+**BNBU PAPER DRIFT** is a full-screen Processing Java game themed around **Me and BNBU**. The player guides a hand-drawn paper airplane through a BNBU semester, collects DDL, quiz, exam, and assignment stamps, avoids ink-like pressure enemies, and redeems reading week after completing enough tasks.
 
-视觉风格保持温暖、极简、纸艺感：米白纸纹、圆角纸卡、柔和阴影、纸屑拼贴、低饱和印章、陶土橙墨迹、暗黑阶段的深咖纸面，以及通关后的英文故事纸页。项目刻意避开赛博风、霓虹风、黑色 HUD 和普通街机小游戏界面。
+视觉风格保持温暖、极简、纸艺感：米白纸纹、圆角纸卡、柔和阴影、纸屑拼贴、低饱和印章、陶土橙墨迹、暗黑阶段的深咖纸面，以及通关后的英文故事纸页。主要 UI 与角色外观已经改为从 `data/ui/` 导入 PNG，代码只保留布局、游戏逻辑和动态文字。
 
-The visual direction stays close to the reference image: warm paper texture, rounded paper cards, soft shadows, paper scraps, muted stamps, clay-orange ink blots, a dark paper phase, and a final story page written across fill-in lines. It avoids cyberpunk, neon, black arcade HUD panels, and full-image UI shortcuts.
+The visual direction stays close to the reference image: warm paper texture, rounded paper cards, soft shadows, paper scraps, muted stamps, clay-orange ink blots, a dark paper phase, and a final story page written across fill-in lines. Most UI and game object visuals now load from PNG files in `data/ui/`, while the code keeps the layout, gameplay logic, and dynamic text.
 
 ---
 
@@ -38,13 +38,13 @@ The current version uses one background music loop only. It first tries `bgm.wav
 - 玩家是一架纸飞机
 - 鼠标相对屏幕中心的位置控制移动方向和速度
 - 纸飞机不会瞬移到鼠标位置，而是平滑加速和漂移
-- 收集印章会增加分数
+- 收集 DDL、quiz、exam、assignment 等任务印章会增加分数
 - 碰到墨渍敌人会减少生命
 - 玩家初始有 3 条命
 - 受伤后会短暂无敌
 - 生命归零后进入 Game Over 纸卡界面
 - Game Over 后移动鼠标重新开始
-- 分数达到 24 后进入通关故事纸页
+- 分数达到 24 后兑换 reading week，并进入通关故事纸页
 
 ---
 
@@ -76,9 +76,9 @@ The current version uses one background music loop only. It first tries `bgm.wav
 
 ## 通关故事 Completion Story
 
-当分数达到 24 时，游戏不再无限继续，而是切换到通关故事纸页。
+当分数达到 24 时，游戏不再无限继续，而是代表 BNBU 学期任务完成，玩家兑换 reading week，并切换到通关故事纸页。
 
-When the score reaches 24, the game enters a completion story page instead of continuing forever.
+When the score reaches 24, the BNBU semester tasks are complete, the player redeems reading week, and the game enters a completion story page.
 
 - 背景出现填字用的横线
 - 英文故事像文字蛇一样从上到下快速写满横线
@@ -91,12 +91,12 @@ When the score reaches 24, the game enters a completion story page instead of co
 Story text:
 
 ```text
-The page remembers every fold.
-Some marks sleep where the light cannot reach.
-When the stamps drift apart, the quiet begins to tear.
-Ink gathers under the paper skin.
-A small plane carries the scattered pieces home.
-Line by line, the page learns how to breathe again.
+At BNBU, every stamp is a small academic task:
+DDL, quiz, exam, assignment, and late-night review.
+The paper plane carries them through a busy semester.
+Ink pressure gathers, but each collected mark becomes progress.
+When enough tasks are finished, the page opens quietly:
+reading week is redeemed, and the plane can finally breathe.
 ```
 
 ---
@@ -115,9 +115,10 @@ PaperDrift/
   InkEnemy.pde         墨渍敌人，追踪玩家，速度增长，碰撞检测
   PaperScrap.pde       背景纸屑，漂浮移动，纸质装饰
   StoryPiece.pde       通关故事句子，重力下落，透明度消失
-  UI.pde               纸质 UI，HUD，卡片，飞机，印章，墨渍，鬼脸，故事横线
+  UI.pde               加载 PNG 视觉资源，绘制 HUD、界面、飞机、印章、敌人和故事横线
   AudioManager.java    Java Sound 音乐加载，循环播放，失败降级
-  data/                可选的单首背景音乐文件
+  data/                背景音乐和 UI 图片资源
+  data/ui/             纸质背景、HUD、面板、飞机、邮票、敌人、纸屑等 PNG
 ```
 
 ### `PaperDrift.pde`
@@ -130,7 +131,7 @@ Responsibilities:
 
 - 定义 `START`、`PLAYING`、`GAME_OVER`、`STORY` 四个状态
 - 创建全屏画布
-- 初始化字体、纸张纹理、暗黑纸纹、音乐、玩家、印章、敌人、纸屑
+- 初始化字体、UI 图片资源、音乐、玩家、印章、敌人、纸屑
 - 管理分数、生命、游戏时间、阶段状态
 - 普通阶段和暗黑阶段的敌人数量增长
 - 分数到 12 触发暗黑阶段
@@ -156,8 +157,7 @@ Important functions:
 - `startStoryMode()`
 - `updateStory()`
 - `storyPiecesGone()`
-- `generatePaperTexture()`
-- `generateDarkPaperTexture()`
+- `drawPaperBackground()`
 
 ### `Player.pde`
 
@@ -266,27 +266,20 @@ Key behavior:
 
 ### `UI.pde`
 
-视觉系统文件，负责大部分纸质界面绘制。
+视觉系统文件，负责加载和绘制 PNG 资源，以及少量动态文字。
 
 Responsibilities:
 
-- 绘制纸卡和柔和阴影
-- 绘制开始界面
-- 绘制游戏 HUD
-- 绘制右下角提示卡
-- 绘制 Game Over 界面
+- 加载 `data/ui/` 下的图片资源
+- 绘制开始界面、HUD、右下角提示卡和 Game Over 面板
 - 绘制方向引导线
-- 绘制纸飞机
-- 绘制印章贴纸
-- 绘制不规则墨渍
-- 暗黑阶段绘制鬼脸
-- 绘制暗黑纸张覆盖层
+- 用 PNG 绘制纸飞机、印章贴纸、普通墨渍敌人和暗黑鬼脸敌人
+- 使用 `darkBlend` 淡入暗黑纸张、暗黑 HUD 和暗黑敌人贴图
 - 绘制故事横线、故事写入文字和提示文字
 
 Important functions:
 
-- `drawPaperCard()`
-- `drawSoftShadow()`
+- `loadUiAssets()`
 - `drawHUD()`
 - `drawStartScreen()`
 - `drawGameOverScreen()`
@@ -294,7 +287,6 @@ Important functions:
 - `drawPaperAirplane()`
 - `drawStamp()`
 - `drawInkBlot()`
-- `drawGhostFace()`
 - `drawDarkPaperOverlay()`
 - `drawPhaseTransitionNotice()`
 - `drawStoryGuideLines()`
@@ -339,9 +331,9 @@ Responsibilities:
 
 ## 设计说明 Design Notes
 
-这个项目的重点不是把图片贴到屏幕上，而是用 Processing 的图形函数画出纸质海报感。大部分 UI、玩家、敌人、印章、纸屑和故事文字都由代码生成。唯一可选外部资源是一首背景音乐。
+这个分支把复杂视觉改成图片导入：纸质背景、开始/结束面板、HUD、提示条、纸飞机、印章、纸屑和敌人都在 `data/ui/` 中作为 PNG 加载。Processing 代码仍然负责鼠标控制、碰撞、难度、暗黑阶段平滑切换、分数生命和故事文字。
 
-The project focuses on procedural drawing rather than placing a full-image UI on the canvas. Most UI objects, the player, enemies, stamps, scraps, and story text are generated with Processing shapes and logic. The only optional external asset is one background music file.
+This branch moves the complex visual layer into imported images. The paper background, panels, HUD, prompts, plane, stamps, scraps, and enemies load from PNG files in `data/ui/`; Processing still handles mouse control, collisions, difficulty, smooth dark-phase blending, score/lives, and story text.
 
 整体风格关键词：
 

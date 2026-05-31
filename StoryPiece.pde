@@ -1,6 +1,7 @@
-// 通关故事句子碎片
-// 点击之后每一句会像纸面上的文字一样往下掉
+// ending story sentence fragments
+// after clicking, each line drifts down like loose text on the paper surface
 class StoryPiece {
+  // position, velocity, and visual state for the falling text
   String textLine;
   PVector pos;
   PVector vel;
@@ -12,10 +13,12 @@ class StoryPiece {
   int index;
 
   StoryPiece(String t, float x, float y, int i) {
+    // initialize each fragment with slight random drift and rotation
     textLine = t;
     pos = new PVector(x, y);
     index = i;
 
+    // longer lines feel heavier and fall faster
     float lengthPower = constrain(textLine.length() / 48.0, 0.55, 1.55);
     vel = new PVector(random(-0.34, 0.34), 0);
     gravity = 0.055 + lengthPower * 0.070;
@@ -26,6 +29,7 @@ class StoryPiece {
   }
 
   void update() {
+    // accelerate downward and fade out over time
     vel.y += gravity;
     pos.x += vel.x;
     pos.y += vel.y + baseFallSpeed;
@@ -40,7 +44,7 @@ class StoryPiece {
 
     int c = uiInkColor();
     fill(red(c), green(c), blue(c), alphaValue);
-    textAlign(LEFT, CENTER);
+    textAlign(CENTER, CENTER);
     textFont(storyFont);
     textSize(storyTextSize());
     text(textLine, 0, 0);
@@ -49,6 +53,7 @@ class StoryPiece {
   }
 
   boolean gone() {
+    // fragment is off-screen or fully transparent
     return pos.y > height + 90 || alphaValue <= 2;
   }
 }
